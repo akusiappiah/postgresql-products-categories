@@ -1,0 +1,16 @@
+# Temporary files
+*.tmp
+*.log
+
+# Environment and credentials
+.env
+.env.*
+!.env.example
+
+# Backup files
+*.bak
+*.backup
+
+# Operating system files
+.DS_Store
+Thumbs.db
