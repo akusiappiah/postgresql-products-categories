@@ -202,13 +202,6 @@ Use `COALESCE` when a query needs a fallback value for NULL. Use `IS NULL` rathe
 
 ## Day 10 – Aggregate Functions
 
-**Status:** Not yet completed.
-
-Planned functions: `COUNT`, `SUM`, `AVG`, `MIN` and `MAX`.
-
-
-## Day 10 – Aggregate Functions
-
 ### What I learned
 
 - `COUNT(*)` counts rows.
