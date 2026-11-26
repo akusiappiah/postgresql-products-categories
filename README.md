@@ -89,6 +89,13 @@ postgresql-products-categories/
 
 SQL scripts and screenshots are added as the learning exercises progress.
 
+## Learning documentation
+
+- [Daily learning log](notes/daily-learning-log.md) — topics covered, practical examples and key takeaways from each day.
+- [Mistakes and lessons learned](notes/mistakes-and-lessons.md) — issues encountered, explanations and safe-practice reminders.
+
+The learning log and lessons file are maintained alongside the SQL scripts so the repository captures both the practical work and the reasoning behind it.
+
 ## Working safely
 
 - Check the target rows with a `SELECT` query before running an `UPDATE` or `DELETE`.
