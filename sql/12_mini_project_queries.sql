@@ -1,14 +1,15 @@
--- Day 14: PostgreSQL Products and Categories mini-project
--- Database: shop_practice
--- Run each section independently where indicated.
+-- Day 14: PostgreSQL Products and Categories mini-project.
+-- Database: shop_practice.
+-- Run each section in order. The transaction section uses a product name
+-- to find one matching record instead of assuming a fixed product_id.
 
--- 1. Inspect the tables
+-- 1. Inspect the tables.
 SELECT COUNT(*) AS total_products FROM products;
 SELECT COUNT(*) AS total_categories FROM categories;
 SELECT * FROM products LIMIT 5;
 SELECT * FROM categories;
 
--- 2. Product catalogue: products with their category names
+-- 2. Product catalogue: products with their category names.
 SELECT
     p.product_id,
     p.product_name,
@@ -21,7 +22,7 @@ INNER JOIN categories c
     ON p.category_id = c.category_id
 ORDER BY p.product_name ASC;
 
--- 3. Overall inventory summary
+-- 3. Overall inventory summary.
 SELECT
     COUNT(*) AS total_products,
     SUM(stock_quantity) AS total_stock,
@@ -29,56 +30,56 @@ SELECT
     ROUND(AVG(price), 2) AS average_product_price
 FROM products;
 
--- 4. Category performance report
+-- 4. Category performance report.
 SELECT
     c.category_name,
     COUNT(p.product_id) AS number_of_products,
-    SUM(p.stock_quantity) AS total_stock,
+    COALESCE(SUM(p.stock_quantity), 0) AS total_stock,
     ROUND(AVG(p.price), 2) AS average_price,
-    SUM(p.price * p.stock_quantity) AS inventory_value
+    COALESCE(SUM(p.price * p.stock_quantity), 0) AS inventory_value
 FROM categories c
-INNER JOIN products p
+LEFT JOIN products p
     ON c.category_id = p.category_id
 GROUP BY c.category_id, c.category_name
 ORDER BY inventory_value DESC;
 
--- 5a. Products with fewer than 10 units in stock
+-- 5a. Products with fewer than 10 units in stock.
 SELECT product_id, product_name, stock_quantity, price
 FROM products
 WHERE stock_quantity < 10
 ORDER BY stock_quantity ASC;
 
--- 5b. Five products with the highest stock
+-- 5b. Five products with the highest stock.
 SELECT product_id, product_name, stock_quantity
 FROM products
 ORDER BY stock_quantity DESC
 LIMIT 5;
 
--- Optional stock range check
+-- Optional stock range check.
 SELECT
     MIN(stock_quantity) AS lowest_stock,
     MAX(stock_quantity) AS highest_stock
 FROM products;
 
--- 6a. Five most expensive products
+-- 6a. Five most expensive products.
 SELECT product_name, price
 FROM products
 ORDER BY price DESC
 LIMIT 5;
 
--- 6b. Five cheapest products
+-- 6b. Five cheapest products.
 SELECT product_name, price
 FROM products
 ORDER BY price ASC
 LIMIT 5;
 
--- 6c. Products priced above the overall average
+-- 6c. Products priced above the overall average.
 SELECT product_name, price
 FROM products
 WHERE price > (SELECT AVG(price) FROM products)
 ORDER BY price DESC;
 
--- 7. Create a reusable product details view
+-- 7. Create a reusable product details view.
 CREATE OR REPLACE VIEW product_details AS
 SELECT
     p.product_id,
@@ -92,12 +93,12 @@ FROM products p
 INNER JOIN categories c
     ON p.category_id = c.category_id;
 
--- Query the view
+-- Query the view.
 SELECT *
 FROM product_details
 ORDER BY inventory_value DESC;
 
--- Category report using the view
+-- Category report using the view.
 SELECT
     category_name,
     COUNT(*) AS total_products,
@@ -106,29 +107,44 @@ FROM product_details
 GROUP BY category_name
 ORDER BY total_inventory_value DESC;
 
--- 8. Transaction safety demonstration
--- Check the current price first.
+-- 8. Transaction safety demonstration.
+-- Find one Bluetooth Speaker by name and use its generated ID.
 SELECT product_id, product_name, price
 FROM products
-WHERE product_id = 23;
+WHERE product_id = (
+    SELECT MIN(product_id)
+    FROM products
+    WHERE product_name = 'Bluetooth Speaker'
+);
 
--- Run this transaction as a unit to test an update and undo it.
 BEGIN;
 
 UPDATE products
 SET price = price + 50
-WHERE product_id = 23;
+WHERE product_id = (
+    SELECT MIN(product_id)
+    FROM products
+    WHERE product_name = 'Bluetooth Speaker'
+);
 
 SELECT product_id, product_name, price
 FROM products
-WHERE product_id = 23;
+WHERE product_id = (
+    SELECT MIN(product_id)
+    FROM products
+    WHERE product_name = 'Bluetooth Speaker'
+);
 
 ROLLBACK;
 
 -- Verify that the original price has been restored.
 SELECT product_id, product_name, price
 FROM products
-WHERE product_id = 23;
+WHERE product_id = (
+    SELECT MIN(product_id)
+    FROM products
+    WHERE product_name = 'Bluetooth Speaker'
+);
 
 -- Use COMMIT instead of ROLLBACK only when you intend to keep
 -- the changes made within a transaction.
