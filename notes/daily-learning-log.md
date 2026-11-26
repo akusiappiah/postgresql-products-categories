@@ -435,4 +435,4 @@ The basic SQL scripts were reviewed and corrected after examiner feedback.
 - Replaced the fixed product ID in transaction examples with a lookup by product name.
 - Added `sql/00_setup.sql` to rebuild the practice tables and sample data from scratch. This reset script drops existing practice tables, so it must be run only when a reset is intended.
 
-**Files:** `sql/00_setup.sql`, `sql/01_create_tables.sql`, `sql/02_insert_select_filter_sort.sql`, `sql/08_aggregates.sql`, `sql/09_group_by_having.sql`, `sql/10_joins.sql`, `sql/11_constraints_transactions_views.sql` and `sql/12_mini_project_queries.sql`.
+**Files:** `sql/00_setup.sql`, `sql/01_create_tables.sql`, `sql/02_insert_select_filter_sort.sql`, `sql/04_filtering.sql`, `sql/05_sorting_limit.sql`, `sql/06_week1_checkpoint.sql`, `sql/07_null_coalesce.sql`, `sql/08_aggregates.sql`, `sql/09_group_by_having.sql`, `sql/10_joins.sql`, `sql/11_constraints_transactions_views.sql` and `sql/12_mini_project_queries.sql`.
