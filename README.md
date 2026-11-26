@@ -81,6 +81,8 @@ postgresql-products-categories/
 ├── README.md
 ├── .gitignore
 ├── sql/
+│   ├── 00a_drop_database.sql
+│   ├── 00b_create_database.sql
 │   ├── 00_setup.sql
 │   ├── 01_create_tables.sql
 │   ├── ...
@@ -96,17 +98,20 @@ postgresql-products-categories/
 
 The SQL scripts are organised for practice and can be opened and run as files. Section headings and explanations are SQL comments, and statements are terminated with semicolons.
 
-### Rebuilding the practice database
+### Rebuilding the entire practice database
 
-1. Create the PostgreSQL database named `shop_practice` if it does not already exist.
-2. Connect pgAdmin's Query Tool to `shop_practice`.
-3. Open and run [`sql/00_setup.sql`](sql/00_setup.sql).
+The database-level reset and table-level setup are separate because PostgreSQL does not allow a database to be dropped while connected to it, and `DROP DATABASE` cannot run inside a transaction.
 
-**Warning:** `00_setup.sql` is a reset script. It drops and recreates the `products` and `categories` tables, so existing data in those tables will be deleted. Use it only when you intend to start with the included sample data.
+1. In pgAdmin, open Query Tool connected to the maintenance database named `postgres`.
+2. Open `sql/00a_drop_database.sql` and execute it. This drops `shop_practice` and all data in it. The `WITH (FORCE)` option terminates other connections to that database.
+3. Still connected to `postgres`, open `sql/00b_create_database.sql` and execute it.
+4. In pgAdmin, refresh the Databases list and connect Query Tool to the newly created `shop_practice` database.
+5. Open `sql/00_setup.sql` and execute it. This creates the `categories` and `products` tables and inserts the sample records.
+6. Verify the row counts and category report returned at the end of `00_setup.sql`.
 
-For learning the individual table-creation steps without resetting data, use `01_create_tables.sql` on a database where those tables do not yet exist.
+**Important:** Steps 2 and 3 are destructive/rebuilding operations. Do not run them against a database containing work you want to keep. Take a backup first if there is any doubt. Run the DROP and CREATE statements separately, not as one transaction.
 
-The Day 14 mini-project consolidates the core skills in a set of reusable reporting queries.
+For learning the individual table-creation steps without resetting the database, use `01_create_tables.sql` on a database where those tables do not yet exist.
 
 ## Day 14 mini-project
 
