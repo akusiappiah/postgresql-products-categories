@@ -273,3 +273,48 @@ Dropping a normal view removes the saved query definition, not the underlying pr
 ### Lesson
 
 Use constraints to enforce business rules, transactions to control changes, and views to reuse commonly needed queries. A normal view is based on its underlying tables; it is not a separate copy of the data.
+
+
+## Day 14 – Mini-project and Reporting Lessons
+
+### Lesson 1: JOINs depend on matching keys
+
+The product catalogue report used `INNER JOIN` on `products.category_id = categories.category_id`. It returned 15 rows, and every product had a matching category.
+
+**Lesson:** Use `INNER JOIN` when only matched records are required. Use `LEFT JOIN` when all rows from the left-hand table must remain in the result.
+
+### Lesson 2: Aggregate inventory value correctly
+
+The total inventory value was calculated as:
+
+```sql
+SUM(price * stock_quantity)
+```
+
+This calculates the value of each product record's stock before adding those values together. It is different from multiplying the sum of prices by the sum of stock quantities.
+
+### Lesson 3: COUNT(*) and COUNT(child_key) differ after LEFT JOIN
+
+For a category with no matching products, a `LEFT JOIN` still produces a row for the category. `COUNT(*)` counts that row, while `COUNT(p.product_id)` ignores the NULL product ID and returns zero.
+
+### Lesson 4: LIMIT should be paired with ORDER BY
+
+`LIMIT 5` returns five rows, but without an explicit `ORDER BY`, those rows are not guaranteed to be the five highest or lowest values.
+
+### Lesson 5: Subqueries can provide dynamic comparison values
+
+The price analysis used a subquery containing `AVG(price)`. The outer query compared each product price against the calculated average, avoiding a hard-coded threshold.
+
+### Lesson 6: Views are reusable query definitions
+
+The `product_details` view combined products and categories and calculated each record's inventory value. A normal view does not store a separate snapshot of the underlying rows; it runs its saved query when selected.
+
+### Lesson 7: Verify transaction outcomes
+
+A test changed product ID 23 from 885 to 935 inside a transaction. After `ROLLBACK`, a separate SELECT confirmed that the original price, 885, was restored.
+
+**Lesson:** Use `BEGIN` to start a transaction, `COMMIT` to save intended changes, and `ROLLBACK` to cancel uncommitted changes.
+
+### Follow-up verification
+
+The category report in Task 4 was reported as ranking Electronics highest, while the later report based on the view was reported as ranking Books highest. Since both calculations should produce the same category totals when the underlying data is unchanged, compare the two query outputs if investigating or extending the project. Do not assume either ranking without rechecking the results.
