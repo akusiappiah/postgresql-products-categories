@@ -380,4 +380,39 @@ Constraints protect data integrity, transactions provide control over changes, a
 
 ## Day 14 – Mini-project and Review
 
-**Status:** Pending.
+### Practical project completed
+
+The final exercise brought together the main PostgreSQL skills learned during the programme using the `products` and `categories` tables.
+
+1. **Database inspection:** Confirmed 15 product records and 4 categories; inspected sample product rows and all categories.
+2. **Product catalogue:** Used an `INNER JOIN` to combine product details with category names. The query returned 15 rows.
+3. **Inventory summary:** Used aggregate functions to calculate:
+   - Product records: 15
+   - Total stock: 376 units
+   - Total inventory value: 199,900.00
+   - Average product price: 380.33
+4. **Category performance:** Used `JOIN`, `GROUP BY`, `COUNT`, `SUM` and `AVG` to produce a category-level report.
+5. **Stock monitoring:** Found no products with stock below 10. The highest stock shown was 99 units for Books and Entertainment; the lowest stock was 20 units for Bluetooth Speaker.
+6. **Price analysis:** Identified a highest price of 885, a lowest price of 160, and 3 products priced above the overall average. Used a scalar subquery to calculate the average-price threshold.
+7. **Views:** Created and queried `product_details`, then used it for category-level reporting.
+8. **Transactions:** Updated product ID 23 from 885 to 935 inside a transaction, then used `ROLLBACK`. A verification query confirmed that the original price of 885 was restored.
+
+### Key takeaways
+
+- `INNER JOIN` returns rows with matching records in both tables.
+- `GROUP BY` calculates aggregate results separately for each group.
+- With an outer join, `COUNT(child_table.primary_key)` counts matched child records and returns zero for an unmatched parent; `COUNT(*)` counts the preserved parent row.
+- `LIMIT` restricts the number of returned rows; use it with `ORDER BY` to make the selection meaningful.
+- A subquery can calculate a value used by an outer query.
+- A normal view stores a query definition, not a separate copy of the underlying data.
+- `COMMIT` saves transaction changes; `ROLLBACK` cancels uncommitted changes.
+
+### Result consistency note
+
+The category-performance exercise was reported as showing Electronics with the highest inventory value, while the later report using `product_details` was reported as showing Books. Both reports use the same inventory-value calculation and should agree when run against unchanged data. Re-run and compare the two category reports if this project is extended.
+
+### SQL file
+
+`sql/12_mini_project_queries.sql`
+
+**Status:** Practical mini-project exercises completed. Day 14 results and transaction rollback verified.
