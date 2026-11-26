@@ -150,3 +150,126 @@ PostgreSQL provides useful text functions:
 ### Lesson
 
 Choose the right NULL-handling and text function for the output required. Remember that replacing NULL in a query result does not change the stored value in the table.
+
+
+## Day 10 – Aggregate Functions
+
+### What I learned
+
+- `COUNT(*)` counts rows, including rows with duplicate values.
+- `COUNT(column_name)` counts non-NULL values in that column.
+- `COUNT(DISTINCT column_name)` counts unique, non-NULL values.
+- `SUM()`, `AVG()`, `MIN()` and `MAX()` summarize numeric data.
+- Inventory value can be calculated with `SUM(price * stock_quantity)`.
+
+### Lesson
+
+Be clear about what is being counted. A count of rows is not necessarily a count of unique product names. Use `COUNT(DISTINCT ...)` only when the question is specifically about unique values.
+
+## Day 11 – GROUP BY and HAVING
+
+### What I learned
+
+- Every selected column that is not aggregated generally needs to be included in the `GROUP BY` clause.
+- `WHERE` filters individual rows before grouping.
+- `HAVING` filters groups after aggregation.
+
+### Lesson
+
+Use `WHERE` for row-level conditions and `HAVING` for aggregate conditions, such as keeping only groups with more than two records.
+
+## Day 12 – JOINs and Relationships
+
+### What I learned
+
+- `INNER JOIN` returns matching rows from both tables.
+- `LEFT JOIN` preserves all rows from the left table, even when there is no matching row on the right.
+- `RIGHT JOIN` preserves all rows from the right table.
+- `FULL OUTER JOIN` preserves matched and unmatched rows from both tables.
+- The `ON` clause specifies the relationship used to match rows.
+
+### Important LEFT JOIN counting lesson
+
+When counting child records after a `LEFT JOIN`, use the child table's primary key:
+
+```sql
+SELECT
+    c.category_name,
+    COUNT(p.product_id) AS total_products
+FROM categories c
+LEFT JOIN products p
+    ON c.category_id = p.category_id
+GROUP BY c.category_name;
+```
+
+`COUNT(*)` would count the preserved category row even when it has no matching product. `COUNT(p.product_id)` returns zero for that category because the product ID is NULL in the unmatched row.
+
+### Lesson
+
+Choose the join type based on which table's records must remain in the result. Pay attention to NULL values produced by outer joins, especially when counting related records.
+
+## Day 13 – Constraints, Transactions and Views
+
+### Lesson 1: CHECK constraints protect data
+
+A `CHECK` constraint enforces a condition on values being inserted or updated.
+
+Example:
+
+```sql
+ALTER TABLE products
+ADD CONSTRAINT chk_stock_nonnegative
+CHECK (stock_quantity >= 0);
+```
+
+PostgreSQL rejects an insert or update that violates this rule. A constraint protects the table even when data changes come from different queries or applications.
+
+### Lesson 2: Transactions allow changes to be undone
+
+- `BEGIN` starts a transaction.
+- `COMMIT` makes the transaction's changes permanent.
+- `ROLLBACK` cancels uncommitted changes.
+
+Example:
+
+```sql
+BEGIN;
+
+UPDATE products
+SET price = price + 10
+WHERE product_id = 1;
+
+ROLLBACK;
+```
+
+After the rollback, the price change from that transaction is not retained.
+
+### Lesson 3: A failed statement can leave a transaction aborted
+
+In PostgreSQL, if a statement fails inside an explicit transaction, subsequent statements in that transaction will not run successfully until the transaction is rolled back.
+
+**Lesson:** If a test violates a constraint inside a transaction, issue `ROLLBACK` before continuing with other work in that transaction.
+
+### Lesson 4: Views are saved queries
+
+A view stores a query definition and can be queried like a table:
+
+```sql
+CREATE VIEW active_products AS
+SELECT product_id, product_name, price, stock_quantity
+FROM products
+WHERE is_active = TRUE;
+```
+
+Query it with:
+
+```sql
+SELECT *
+FROM active_products;
+```
+
+Dropping a normal view removes the saved query definition, not the underlying product records.
+
+### Lesson
+
+Use constraints to enforce business rules, transactions to control changes, and views to reuse commonly needed queries. A normal view is based on its underlying tables; it is not a separate copy of the data.
