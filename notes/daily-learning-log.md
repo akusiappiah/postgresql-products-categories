@@ -205,3 +205,186 @@ Use `COALESCE` when a query needs a fallback value for NULL. Use `IS NULL` rathe
 **Status:** Not yet completed.
 
 Planned functions: `COUNT`, `SUM`, `AVG`, `MIN` and `MAX`.
+
+
+## Day 10 – Aggregate Functions
+
+### What I learned
+
+- `COUNT(*)` counts rows.
+- `COUNT(DISTINCT column_name)` counts unique, non-NULL values in a column.
+- `SUM()` calculates a total.
+- `AVG()` calculates an average.
+- `MIN()` and `MAX()` return the lowest and highest values.
+- `ROUND()` can format numeric results to a chosen number of decimal places.
+- Inventory value can be calculated using `SUM(price * stock_quantity)`.
+
+### Example
+
+```sql
+SELECT
+    COUNT(*) AS total_product_records,
+    COUNT(DISTINCT product_name) AS unique_product_names,
+    SUM(stock_quantity) AS total_stock,
+    ROUND(AVG(price), 2) AS average_price,
+    MIN(price) AS lowest_price,
+    MAX(price) AS highest_price,
+    SUM(price * stock_quantity) AS total_inventory_value
+FROM products;
+```
+
+### Key takeaway
+
+Aggregate functions summarize multiple rows into useful figures. `COUNT(*)` counts all rows, including rows with duplicate product names.
+
+**Status:** Completed.
+
+## Day 11 – GROUP BY and HAVING
+
+### What I learned
+
+- `GROUP BY` groups rows that share the same value.
+- Aggregate functions can calculate totals and averages for each group.
+- `HAVING` filters grouped results.
+- `WHERE` filters individual rows before grouping, while `HAVING` filters groups after aggregation.
+
+### Example
+
+```sql
+SELECT
+    category_id,
+    COUNT(*) AS total_products,
+    SUM(stock_quantity) AS total_stock,
+    ROUND(AVG(price), 2) AS average_price,
+    SUM(price * stock_quantity) AS inventory_value
+FROM products
+GROUP BY category_id
+ORDER BY inventory_value DESC;
+```
+
+### Key takeaway
+
+Use `WHERE` to decide which rows enter the grouping operation. Use `HAVING` when the condition depends on an aggregate result, such as a group having more than two records.
+
+**Status:** Completed.
+
+## Day 12 – JOINs and Relationships
+
+### What I learned
+
+- A `JOIN` combines related rows from two or more tables.
+- `INNER JOIN` returns rows with matching records in both tables.
+- `LEFT JOIN` returns every row from the left table, including rows without a match on the right.
+- `RIGHT JOIN` preserves every row from the right table.
+- `FULL OUTER JOIN` returns matched and unmatched rows from both tables.
+- Table aliases such as `p` and `c` make queries shorter and easier to read.
+- The `ON` clause defines how the tables are related.
+
+### Example
+
+```sql
+SELECT
+    p.product_name,
+    c.category_name,
+    p.price
+FROM products p
+INNER JOIN categories c
+    ON p.category_id = c.category_id;
+```
+
+### Finding categories without products
+
+```sql
+SELECT c.category_name
+FROM categories c
+LEFT JOIN products p
+    ON c.category_id = p.category_id
+WHERE p.product_id IS NULL;
+```
+
+### Key takeaway
+
+Choose the join type based on which table's rows must be preserved. With a `LEFT JOIN`, use `COUNT(child_table.primary_key)` rather than `COUNT(*)` when counting matching child records, so an unmatched parent is counted as zero.
+
+**Status:** Completed.
+
+## Day 13 – Constraints, Transactions and Views
+
+### What I learned
+
+- Constraints enforce data rules at database level.
+- `CHECK` validates that a column value meets a condition.
+- `BEGIN` starts a transaction.
+- `COMMIT` saves transaction changes.
+- `ROLLBACK` cancels uncommitted changes.
+- A view is a saved query that can be queried like a table.
+- `CREATE OR REPLACE VIEW` can replace a view definition.
+- `DROP VIEW` removes a view without deleting the underlying table records.
+
+### Examples
+
+Add a constraint that prevents non-positive product prices:
+
+```sql
+ALTER TABLE products
+ADD CONSTRAINT chk_product_price
+CHECK (price > 0);
+```
+
+Use a transaction to test a change and undo it:
+
+```sql
+BEGIN;
+
+UPDATE products
+SET price = price + 10
+WHERE product_id = 1;
+
+SELECT *
+FROM products
+WHERE product_id = 1;
+
+ROLLBACK;
+```
+
+Create a view combining products and category names:
+
+```sql
+CREATE VIEW product_details AS
+SELECT
+    p.product_id,
+    p.product_name,
+    c.category_name,
+    p.price,
+    p.stock_quantity,
+    p.is_active
+FROM products p
+INNER JOIN categories c
+    ON p.category_id = c.category_id;
+```
+
+Query the view:
+
+```sql
+SELECT *
+FROM product_details;
+```
+
+### Key takeaway
+
+Constraints protect data integrity, transactions provide control over changes, and views make reusable queries easier to access.
+
+### Practical exercises from this lesson
+
+- Add a `CHECK` constraint to prevent negative stock quantities.
+- Test that PostgreSQL rejects an invalid stock value.
+- Use `ROLLBACK` to cancel a test update.
+- Create and query a view containing active products.
+
+**Status:** Lesson covered; exercises and the Day 13 SQL script should be verified before the final project.
+
+**Suggested file:** `sql/11_constraints_transactions_views.sql`
+
+## Day 14 – Mini-project and Review
+
+**Status:** Pending.
