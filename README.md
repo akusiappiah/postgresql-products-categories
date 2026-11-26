@@ -81,6 +81,12 @@ postgresql-products-categories/
 ├── README.md
 ├── .gitignore
 ├── sql/
+│   ├── 00_setup.sql
+│   ├── 01_create_tables.sql
+│   ├── ...
+│   ├── 10_joins.sql
+│   ├── 11_constraints_transactions_views.sql
+│   └── 12_mini_project_queries.sql
 ├── notes/
 │   ├── daily-learning-log.md
 │   └── mistakes-and-lessons.md
@@ -88,13 +94,27 @@ postgresql-products-categories/
     └── .gitkeep
 ```
 
-SQL scripts and screenshots are added as the learning exercises progress. The Day 14 mini-project consolidates the core skills in a set of reusable reporting queries.
+The SQL scripts are organised for practice and can be opened and run as files. Section headings and explanations are SQL comments, and statements are terminated with semicolons.
+
+### Rebuilding the practice database
+
+1. Create the PostgreSQL database named `shop_practice` if it does not already exist.
+2. Connect pgAdmin's Query Tool to `shop_practice`.
+3. Open and run [`sql/00_setup.sql`](sql/00_setup.sql).
+
+**Warning:** `00_setup.sql` is a reset script. It drops and recreates the `products` and `categories` tables, so existing data in those tables will be deleted. Use it only when you intend to start with the included sample data.
+
+For learning the individual table-creation steps without resetting data, use `01_create_tables.sql` on a database where those tables do not yet exist.
+
+The Day 14 mini-project consolidates the core skills in a set of reusable reporting queries.
 
 ## Day 14 mini-project
 
 The final practical exercise uses the `products` and `categories` tables to produce a joined product catalogue, inventory summary, category performance report, stock-monitoring results and price analysis. It also creates and queries a reusable `product_details` view and demonstrates transaction safety with `ROLLBACK`.
 
 See [`sql/12_mini_project_queries.sql`](sql/12_mini_project_queries.sql) for the project queries.
+
+The Day 13 lesson uses a `CHECK (stock_quantity >= 0)` constraint and an `active_products` view. The Day 12 category exercises use `LEFT JOIN` and calculate inventory value with `SUM(price * stock_quantity)`.
 
 ## Learning documentation
 
