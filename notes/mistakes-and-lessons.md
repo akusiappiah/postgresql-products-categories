@@ -318,3 +318,52 @@ A test changed product ID 23 from 885 to 935 inside a transaction. After `ROLLBA
 ### Follow-up verification
 
 The category report in Task 4 was reported as ranking Electronics highest, while the later report based on the view was reported as ranking Books highest. Since both calculations should produce the same category totals when the underlying data is unchanged, compare the two query outputs if investigating or extending the project. Do not assume either ranking without rechecking the results.
+
+
+## Examiner Review – Additional SQL Lessons
+
+### 1. SQL scripts need executable comments and statement terminators
+
+A heading such as `Lessons:` or a line of equals signs is not a SQL comment. PostgreSQL tries to execute it and returns a syntax error. Prefix explanatory lines with `--` (or use a properly closed block comment). End each SQL statement with a semicolon so the file can be executed as a script.
+
+### 2. Test the exact condition enforced by a CHECK constraint
+
+The Day 13 requirement was to prevent negative stock, not to enforce a positive price. The correct rule is:
+
+```sql
+CHECK (stock_quantity >= 0)
+```
+
+A valid positive stock value does not test this rule. Use a negative test value such as `-5` and confirm PostgreSQL rejects it. The revised lesson catches the expected `check_violation` so the full file can continue.
+
+### 3. Preserve parent rows when reporting category totals
+
+Start from `categories` and use a `LEFT JOIN` to `products` when every category must appear, including categories without products. Use `COUNT(p.product_id)`, not `COUNT(*)`, so a category with no matching product reports zero.
+
+### 4. Calculate inventory value at product-row level
+
+The correct total inventory value is:
+
+```sql
+SUM(p.price * p.stock_quantity)
+```
+
+Summing prices alone does not calculate the value of all units held in stock.
+
+### 5. Keep sorting outside a normal view
+
+A view should define the rows and columns it exposes. Apply presentation order when selecting from it:
+
+```sql
+SELECT *
+FROM active_products
+ORDER BY price DESC;
+```
+
+### 6. Avoid relying on generated identity values
+
+Identity values can change when data is reloaded or inserted in a different order. Look up a target record by a meaningful attribute (such as product name), and use its generated key in the update. If names are not unique, define a uniqueness rule or add further identifying conditions.
+
+### 7. Make the practice database reproducible
+
+A setup script makes it possible to recreate a known schema and sample dataset. Clearly label destructive reset scripts and run them only when the existing practice data can be discarded.
