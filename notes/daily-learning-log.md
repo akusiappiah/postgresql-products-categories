@@ -316,13 +316,15 @@ Choose the join type based on which table's rows must be preserved. With a `LEFT
 
 ### Examples
 
-Add a constraint that prevents non-positive product prices:
+Add a constraint that prevents negative stock quantities:
 
 ```sql
 ALTER TABLE products
-ADD CONSTRAINT chk_product_price
-CHECK (price > 0);
+ADD CONSTRAINT chk_stock_nonnegative
+CHECK (stock_quantity >= 0);
 ```
+
+A negative stock test value (for example, `-5`) must be rejected. The corrected lesson script catches the expected constraint violation so the remainder of the file can run.
 
 Use a transaction to test a change and undo it:
 
@@ -340,27 +342,29 @@ WHERE product_id = 1;
 ROLLBACK;
 ```
 
-Create a view combining products and category names:
+Create a view called `active_products` containing only active products. Keep sorting in the query that reads the view, not in the view definition:
 
 ```sql
-CREATE VIEW product_details AS
+CREATE OR REPLACE VIEW active_products AS
 SELECT
     p.product_id,
     p.product_name,
-    c.category_name,
     p.price,
-    p.stock_quantity,
-    p.is_active
+    c.category_name,
+    p.is_active,
+    p.stock_quantity
 FROM products p
 INNER JOIN categories c
-    ON p.category_id = c.category_id;
+    ON p.category_id = c.category_id
+WHERE p.is_active = TRUE;
 ```
 
-Query the view:
+Query the view from highest to lowest price:
 
 ```sql
 SELECT *
-FROM product_details;
+FROM active_products
+ORDER BY price DESC;
 ```
 
 ### Key takeaway
@@ -395,7 +399,7 @@ The final exercise brought together the main PostgreSQL skills learned during th
 5. **Stock monitoring:** Found no products with stock below 10. The highest stock shown was 99 units for Books and Entertainment; the lowest stock was 20 units for Bluetooth Speaker.
 6. **Price analysis:** Identified a highest price of 885, a lowest price of 160, and 3 products priced above the overall average. Used a scalar subquery to calculate the average-price threshold.
 7. **Views:** Created and queried `product_details`, then used it for category-level reporting.
-8. **Transactions:** Updated product ID 23 from 885 to 935 inside a transaction, then used `ROLLBACK`. A verification query confirmed that the original price of 885 was restored.
+8. **Transactions:** Tested a price update inside a transaction, selected the target product by name rather than assuming a fixed `product_id`, then used `ROLLBACK` to restore its original price.
 
 ### Key takeaways
 
@@ -416,3 +420,19 @@ The category-performance exercise was reported as showing Electronics with the h
 `sql/12_mini_project_queries.sql`
 
 **Status:** Practical mini-project exercises completed. Day 14 results and transaction rollback verified.
+
+
+## Post-course Examiner Review – Script Corrections
+
+The basic SQL scripts were reviewed and corrected after examiner feedback.
+
+- Added SQL comments to explanatory headings and section labels so they are not interpreted as executable SQL.
+- Added missing statement terminators and cleaned the affected lesson files so they can be run as SQL scripts.
+- Corrected Day 12 category exercises to use `LEFT JOIN` from `categories` and `COUNT(p.product_id)`, preserving categories with no products.
+- Added total inventory value using `SUM(p.price * p.stock_quantity)`.
+- Corrected Day 13's stock constraint to `CHECK (stock_quantity >= 0)` and added a negative-stock test.
+- Corrected the Day 13 view name to `active_products`; sorting is applied when querying the view with `ORDER BY price DESC`.
+- Replaced the fixed product ID in transaction examples with a lookup by product name.
+- Added `sql/00_setup.sql` to rebuild the practice tables and sample data from scratch. This reset script drops existing practice tables, so it must be run only when a reset is intended.
+
+**Files:** `sql/00_setup.sql`, `sql/01_create_tables.sql`, `sql/02_insert_select_filter_sort.sql`, `sql/08_aggregates.sql`, `sql/09_group_by_having.sql`, `sql/10_joins.sql`, `sql/11_constraints_transactions_views.sql` and `sql/12_mini_project_queries.sql`.
