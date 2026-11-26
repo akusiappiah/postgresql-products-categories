@@ -55,6 +55,7 @@ The relationship is one-to-many: one category can be associated with multiple pr
 - Group data and filter groups with `GROUP BY` and `HAVING`.
 - Join related tables using `INNER JOIN`, `LEFT JOIN`, `RIGHT JOIN` and `FULL OUTER JOIN`.
 - Apply constraints, manage transactions and create views.
+- Build practical inventory, category and price reports using joins, aggregates, subqueries and views.
 
 ## Progress
 
@@ -71,7 +72,7 @@ The relationship is one-to-many: one category can be associated with multiple pr
 - [x] Day 11 — `GROUP BY` and `HAVING`
 - [x] Day 12 — Joins and relationships
 - [x] Day 13 — Constraints, transactions and views
-- [ ] Day 14 — Mini-project and review
+- [x] Day 14 — Mini-project and review
 
 ## Repository structure
 
@@ -87,7 +88,13 @@ postgresql-products-categories/
     └── .gitkeep
 ```
 
-SQL scripts and screenshots are added as the learning exercises progress.
+SQL scripts and screenshots are added as the learning exercises progress. The Day 14 mini-project consolidates the core skills in a set of reusable reporting queries.
+
+## Day 14 mini-project
+
+The final practical exercise uses the `products` and `categories` tables to produce a joined product catalogue, inventory summary, category performance report, stock-monitoring results and price analysis. It also creates and queries a reusable `product_details` view and demonstrates transaction safety with `ROLLBACK`.
+
+See [`sql/12_mini_project_queries.sql`](sql/12_mini_project_queries.sql) for the project queries.
 
 ## Learning documentation
 
