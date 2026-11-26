@@ -80,6 +80,3 @@ WHERE p.is_active = TRUE;
 SELECT *
 FROM active_products
 ORDER BY price DESC;
-
--- 6. Drop the view created for this lesson.
-DROP VIEW IF EXISTS active_products;
